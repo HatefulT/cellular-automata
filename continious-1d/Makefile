@@ -1,8 +1,10 @@
+MAKEFLAGS += --silent
+
 CXX = g++
 CXXFLAGS = -Wall -std=c++17
 
 BUILD = build
-EXECUTABLE = main.out
+EXECUTABLE = build/main.out
 LDLIBS = $(shell pkg-config sfml-all --libs)
 SOURCE_FOLDER = src
 INCLUDE = include
@@ -13,10 +15,10 @@ SOURCES = $(wildcard $(SOURCE_FOLDER)/*)
 BUILDS = $(patsubst $(SOURCE_FOLDER)/%.cpp, $(BUILD)/%.o, $(SOURCES))
 
 run: $(EXECUTABLE)
-	$(BUILD)/$(EXECUTABLE)
+	$(EXECUTABLE)
 
 $(EXECUTABLE): $(BUILDS)
-	$(CXX) $(BUILDS) $(CPPFLAGS) -o $(BUILD)/$(EXECUTABLE) $(LDLIBS)
+	$(CXX) $(BUILDS) $(CPPFLAGS) -o $(EXECUTABLE) $(LDLIBS)
 
 $(BUILD)/%.o: $(SOURCE_FOLDER)/%.cpp $(INCLUDE)/%.h
 	$(CXX) $(CXXFLAGS) $< -c -o $@ $(CPPFLAGS)

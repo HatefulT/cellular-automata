@@ -67,4 +67,7 @@ int main() {
         cells = tmp;
     }
     img.write("output.bmp");
+
+    delete [] cells;
+    delete [] nextCells;
 }
