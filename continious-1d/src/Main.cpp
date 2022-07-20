@@ -1,11 +1,12 @@
 #include <iostream>
+#include <cmath>
 #include "Image.h"
 
 void calculate(const float *cells, float *nextCells, uint32_t W,
     float a, float b, float c, float d)
 {
     for(uint32_t x=0; x<W; x++) {
-        float tmp = 0;
+        float tmp = d;
         if(x != 0)
             tmp += a * cells[x-1];
         else
@@ -18,7 +19,12 @@ void calculate(const float *cells, float *nextCells, uint32_t W,
         else
             tmp += c * cells[0];
 
-        nextCells[x] = tmp + d;
+        if(tmp > 1.f)
+            tmp -= floor(tmp);
+        if(tmp < 0.f)
+            tmp += floor(1.f-tmp);
+
+        nextCells[x] = tmp;
     }
 }
 
@@ -42,15 +48,16 @@ int main() {
     cin >> ruleA >> ruleB >> ruleC >> ruleD;
 
     Image img{ W, H };
+    auto bwConv = [](float x) -> uint8_t {
+        float tmp = (x * 255);
+        if(tmp > 255.f)
+            return 255U;
+        if(tmp < 0.f)
+            return 0U;
+        return static_cast<uint32_t>(tmp);
+    };
+
     for(uint32_t x=0; x<W; x++) {
-        auto bwConv = [](float x) -> uint8_t {
-            float tmp = (x * 255);
-            if(tmp > 255)
-                return 255U;
-            if(tmp < 0)
-                return 0U;
-            return static_cast<uint32_t>(tmp);
-        };
         img.values[0][3*x]   = bwConv(cells[x]);
         img.values[0][3*x+1] = bwConv(cells[x]);
         img.values[0][3*x+2] = bwConv(cells[x]);
@@ -58,14 +65,6 @@ int main() {
     for(uint32_t y=1; y<H; y++) {
         calculate(cells, nextCells, W, ruleA, ruleB, ruleC, ruleD);
         for(uint32_t x=0; x<W; x++) {
-            auto bwConv = [](float x) -> uint8_t {
-                float tmp = (x * 255);
-                while(tmp > 255.f)
-                    tmp -= 255.f;
-                while(tmp < 0.f)
-                    tmp += 255.f;
-                return static_cast<uint32_t>(tmp);
-            };
             img.values[y][3*x]   = bwConv(cells[x]);
             img.values[y][3*x+1] = bwConv(cells[x]);
             img.values[y][3*x+2] = bwConv(cells[x]);
